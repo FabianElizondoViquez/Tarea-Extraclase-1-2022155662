@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Tarea_Extraclase_1_2022155662
         private Thread _listenerThread;
         private TcpListener _listener;
         private TextBox _outputTextBox;
+        private List<TcpClient> _clients = new List<TcpClient>();
+        private readonly object _lock = new object();
 
         public SocketServer(int port, TextBox outputTextBox)
         {
@@ -34,13 +37,22 @@ namespace Tarea_Extraclase_1_2022155662
 
             while (true)
             {
-                // Bloquea hasta que llegue un cliente
-                TcpClient client = _listener.AcceptTcpClient();
+                try
+                {
+                    TcpClient client = _listener.AcceptTcpClient();
+                    lock (_lock)
+                    {
+                        _clients.Add(client);
+                    }
 
-                // Crea un hilo separado para manejar la comunicación con este cliente
-                Thread clientThread = new Thread(HandleClientComm);
-                clientThread.IsBackground = true;
-                clientThread.Start(client);
+                    Thread clientThread = new Thread(HandleClientComm);
+                    clientThread.IsBackground = true;
+                    clientThread.Start(client);
+                }
+                catch (SocketException ex)
+                {
+                    Console.WriteLine($"Error al aceptar cliente: {ex.Message}");
+                }
             }
         }
 
@@ -51,38 +63,75 @@ namespace Tarea_Extraclase_1_2022155662
             byte[] message = new byte[4096];
             int bytesRead;
 
-            while (true)
+            try
             {
-                bytesRead = 0;
-
-                try
+                while (true)
                 {
-                    // Bloquea hasta que se reciba un mensaje
                     bytesRead = clientStream.Read(message, 0, 4096);
-                }
-                catch
-                {
-                    // Un error ha ocurrido en la lectura
-                    break;
-                }
 
-                if (bytesRead == 0)
-                {
-                    // El cliente se ha desconectado
-                    break;
+                    if (bytesRead == 0)
+                    {
+                        // La conexión ha sido cerrada por el cliente
+                        break;
+                    }
+
+                    string msg = Encoding.ASCII.GetString(message, 0, bytesRead);
+
+                    _outputTextBox.Invoke(new Action(() =>
+                    {
+                        _outputTextBox.AppendText($"Mensaje recibido: {msg}{Environment.NewLine}");
+                    }));
                 }
-
-                // Traduce los datos recibidos en un mensaje ASCII
-                string msg = Encoding.ASCII.GetString(message, 0, bytesRead);
-
-                // Muestra el mensaje en el TextBox
-                _outputTextBox.Invoke(new Action(() =>
-                {
-                    _outputTextBox.AppendText($"Mensaje recibido: {msg}{Environment.NewLine}");
-                }));
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al manejar cliente: {ex.Message}");
+            }
+            finally
+            {
+                lock (_lock)
+                {
+                    _clients.Remove(tcpClient);
+                }
+                tcpClient.Close();
+            }
+        }
 
-            tcpClient.Close();
+        public void SendMessage(string message)
+        {
+            byte[] buffer = Encoding.ASCII.GetBytes(message);
+            List<TcpClient> disconnectedClients = new List<TcpClient>();
+
+            lock (_lock)
+            {
+                foreach (var client in _clients)
+                {
+                    try
+                    {
+                        if (client.Connected)
+                        {
+                            NetworkStream clientStream = client.GetStream();
+                            clientStream.Write(buffer, 0, buffer.Length);
+                            clientStream.Flush();
+                        }
+                        else
+                        {
+                            disconnectedClients.Add(client);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error al enviar mensaje: {ex.Message}");
+                        disconnectedClients.Add(client);
+                    }
+                }
+
+                foreach (var client in disconnectedClients)
+                {
+                    _clients.Remove(client);
+                    client.Close();
+                }
+            }
         }
     }
 }

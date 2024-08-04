@@ -105,14 +105,7 @@
             // 
             // lblredactar
             // 
-            this.lblredactar.AutoSize = true; // Ajusta automáticamente el tamaño del Label
-            this.lblredactar.Location = new System.Drawing.Point(35, 20); // Posición encima del TextBox
-            this.lblredactar.Name = "lblredactar";
-            this.lblredactar.Size = new System.Drawing.Size(150, 13); // Tamaño del Label
-            this.lblredactar.TabIndex = 2;
-            this.lblredactar.Text = "Redactar mensaje:"; // Texto sobre el TextBox
-            this.lblredactar.BackColor = System.Drawing.Color.Transparent; 
-            this.lblredactar.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+
             // 
             // Form1
             // 

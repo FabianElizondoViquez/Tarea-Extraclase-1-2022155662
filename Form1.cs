@@ -39,8 +39,8 @@ namespace Tarea_Extraclase_1_2022155662
 
             if (!string.IsNullOrEmpty(puertoDestino) && !string.IsNullOrEmpty(inputText))
             {
-                SendMessage(inputText, puertoDestino);
-                txtbox.AppendText("Mensaje enviado al puerto " + puertoDestino + ": " + inputText + Environment.NewLine);
+                SendMessage(puertoDestino, inputText);
+                txtbox.AppendText("De: " + puertoDestino + ": " + inputText + Environment.NewLine);
                 txtPuerto.Clear();
                 txtInput.Clear();
             }
@@ -62,6 +62,7 @@ namespace Tarea_Extraclase_1_2022155662
                 clientStream.Write(buffer, 0, buffer.Length);
                 clientStream.Flush();
                 client.Close();
+                _server.SendMessage(message);
             }
             catch (Exception ex)
             {

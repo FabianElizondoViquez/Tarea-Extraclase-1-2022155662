@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Tarea-Extraclase-1-2022155662")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7efae8a6d01b6f051885e9fb467b1aa2f717d3cf")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+077619ff0e72bd80659e50674af37c2176105ee6")]
 [assembly: System.Reflection.AssemblyProductAttribute("Tarea-Extraclase-1-2022155662")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Tarea-Extraclase-1-2022155662")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
